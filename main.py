@@ -25,7 +25,7 @@ wait = WebDriverWait(driver, 20)
 
 # Ждём, пока все карточки с вакансиями не появятся
 try:
-    vacancies = wait.until(EC.visibility_of_all_elements_located((By.XPATH, '//div[contains(@class, "magritte-grid-layout-content___fzkS0_2-1-10")]')))
+    vacancies = driver.find_elements(By.CLASS_NAME, 'vacancy-serp-content')
 except TimeoutException:
     print("Элементы не были найдены в течение заданного времени")
     driver.quit()
@@ -36,10 +36,10 @@ parsed_data = []
 for vacancy in vacancies:
     try:
         # Использование XPath для поиска нужных элементов
-        title = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "vacancy-serp__vacancy-title")]').text
-        company = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "vacancy-serp__vacancy-employer")]').text
-        salary = vacancy.find_element(By.XPATH, './/span[contains(@data-qa, "vacancy-serp__vacancy-compensation")]').text
-        link = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "vacancy-serp__vacancy-title")]').get_attribute('href')
+        title = vacancy.find_element(By.XPATH, './/span[contains(@data-qa, "serp-item__title-text")]').text
+        company = vacancy.find_element(By.XPATH, './/span[contains(@data-qa, "vacancy-serp__vacancy-employer-text")]').text
+        salary = vacancy.find_element(By.XPATH, './/span[contains(@class, "magritte-text___pbpft_3-0-13 magritte-text_style-primary___AQ7MW_3-0-13 magritte-text_typography-label-1-regular___pi3R-_3-0-13")]').text
+        link = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "vacancy-serp__vacancy_response")]').get_attribute('href')
         parsed_data.append([title, company, salary, link])
     except NoSuchElementException as e:
         print(f"Элемент не найден: {e}")
