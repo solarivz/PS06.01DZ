@@ -25,7 +25,7 @@ wait = WebDriverWait(driver, 20)
 
 # Ждём, пока все карточки с вакансиями не появятся
 try:
-    vacancies = driver.find_elements(By.CLASS_NAME, 'vacancy-serp-content')
+    vacancies = driver.find_elements(By.CLASS_NAME, 'main-content main-content_broad-spacing')
 except TimeoutException:
     print("Элементы не были найдены в течение заданного времени")
     driver.quit()
