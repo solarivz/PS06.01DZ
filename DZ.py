@@ -28,7 +28,7 @@ while True:
 
 # Ждём, пока все карточки с товарами не появятся
 try:
-    products = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'LlPhw')))
+    products = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-testid="product-card"]')))
 except TimeoutException:
     print("Элементы не были найдены в течение заданного времени")
     driver.quit()
@@ -39,12 +39,19 @@ parsed_data = []
 # Перебираем каждую карточку товара
 for product in products:
     try:
-        # Используем корректный XPath для извлечения информации
-        title = product.find_element(By.XPATH, './/div[contains(@class, "wYUX2")]').text
-        price = product.find_element(By.XPATH, './/div[contains(@class, "q5Uds T7z9Z fxA6s")]').text
-        #link = product.find_element(By.XPATH, './/a[contains(@class, "ui-GPFV8 qUioe ProductName ActiveProduct")]').get_attribute("href")
+        # Извлекаем информацию о товаре
+        title = product.find_element(By.XPATH, './/span[@itemprop="name"]').text
+        price = product.find_element(By.XPATH, './/meta[@itemprop="price"]').get_attribute('content')
+        #link = product.find_element(By.XPATH, './/a[@class="ui-GPFV8 XGLam"]').get_attribute('href')
+        link = product.find_element(By.XPATH, './/a[contains(@class, "ui-GPFV8")]').get_attribute('href')
 
-        parsed_data.append([title, price])
+        # Проверяем наличие производителя, если доступно
+        try:
+            manufacturer = product.find_element(By.XPATH, './/div[contains(@class, "manufacturer-class")]').text
+        except NoSuchElementException:
+            manufacturer = "Не указан"
+
+        parsed_data.append([title, manufacturer, price, link])
     except NoSuchElementException as e:
         print(f"Элемент не найден: {e}")
     except Exception as e:
@@ -56,7 +63,7 @@ driver.quit()
 # Сохраняем данные в CSV-файл
 with open("products.csv", 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(['Название товара', 'Цена'])
+    writer.writerow(['Название товара', 'Производитель', 'Цена', 'Ссылка на товар'])
     writer.writerows(parsed_data)
 
 print(f"Собрано {len(parsed_data)} товаров")
