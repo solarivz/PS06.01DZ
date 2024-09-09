@@ -9,8 +9,8 @@ import time
 # Инициализация WebDriver для Chrome
 driver = webdriver.Chrome()
 
-# Указываем URL сайта с вакансиями
-url = "я"
+# Указываем URL сайта с товарами
+url = "https://www.divan.ru/category/svet"
 driver.get(url)
 
 # Увеличиваем время ожидания и выполняем прокрутку вниз постепенно
@@ -26,9 +26,9 @@ while True:
         break
     last_height = new_height
 
-# Ждём, пока все карточки с вакансиями не появятся
+# Ждём, пока все карточки с товарами не появятся
 try:
-    vacancies = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'vacancy-serp-item')))
+    products = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'LlPhw')))
 except TimeoutException:
     print("Элементы не были найдены в течение заданного времени")
     driver.quit()
@@ -36,15 +36,15 @@ except TimeoutException:
 
 parsed_data = []
 
-# Перебираем каждую карточку вакансии
-for vacancy in vacancies:
+# Перебираем каждую карточку товара
+for product in products:
     try:
-        # Используем XPath для точного извлечения информации
-        title = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "serp-item__title")]').text
-        company = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "vacancy-serp__vacancy-employer")]').text
-        salary = vacancy.find_element(By.XPATH, './/span[contains(@data-qa, "vacancy-serp__vacancy-compensation")]').text
-        link = vacancy.find_element(By.XPATH, './/a[contains(@data-qa, "serp-item__title")]').get_attribute('href')
-        parsed_data.append([title, company, salary, link])
+        # Используем корректный XPath для извлечения информации
+        title = product.find_element(By.XPATH, './/div[contains(@class, "wYUX2")]').text
+        price = product.find_element(By.XPATH, './/div[contains(@class, "q5Uds T7z9Z fxA6s")]').text
+        #link = product.find_element(By.XPATH, './/a[contains(@class, "ui-GPFV8 qUioe ProductName ActiveProduct")]').get_attribute("href")
+
+        parsed_data.append([title, price])
     except NoSuchElementException as e:
         print(f"Элемент не найден: {e}")
     except Exception as e:
@@ -54,9 +54,9 @@ for vacancy in vacancies:
 driver.quit()
 
 # Сохраняем данные в CSV-файл
-with open("hh.csv", 'w', newline='', encoding='utf-8') as file:
+with open("products.csv", 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(['Название вакансии', 'название компании', 'зарплата', 'ссылка на вакансию'])
+    writer.writerow(['Название товара', 'Цена'])
     writer.writerows(parsed_data)
 
-print(f"Собрано {len(parsed_data)} вакансий")
+print(f"Собрано {len(parsed_data)} товаров")
